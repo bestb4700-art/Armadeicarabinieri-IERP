@@ -703,3 +703,17 @@ body {
   .timeline-item::before { left: 52px; }
   .footer-top { flex-direction: column; gap: 1rem; text-align: center; }
 }
+
+/* Contact card as link */
+a.contact-card-link {
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
+}
+
+a.contact-card-link:hover {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.08);
+  transform: translateY(-3px);
+  transition: all 0.3s;
+}
