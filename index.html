@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arma dei Carabinieri — Staff Panel</title>
+  <meta name="theme-color" content="#0b0e1a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:   #0b0e1a;
+      --navy2:  #111527;
+      --navy3:  #161c30;
+      --card:   rgba(17,21,39,0.97);
+      --gold:   #c8a84b;
+      --gold2:  #e8c96a;
+      --gold-glow: rgba(200,168,75,0.18);
+      --red:    #c8192e;
+      --text:   #eef1fa;
+      --text2:  #9aaac8;
+      --muted:  #5a6a88;
+      --border: rgba(200,168,75,0.18);
+      --border2:rgba(255,255,255,0.07);
+      --success:#3ecf8e;
+      --warn:   #f59e0b;
+      --danger: #ef4444;
+      --blue:   #4a7fff;
+      --shadow: 0 24px 64px rgba(0,0,0,0.75);
+      --sidebar:272px;
+      font-family: "Inter", -apple-system, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; background: var(--navy); color: var(--text); overflow-x: hidden; }
+    button, input, select, textarea { font: inherit; }
+    img { display: block; max-width: 100%; }
+    .hidden { display: none !important; }
+
+    /* ══ LOADING ══════════════════════════════════════════════════════════ */
+    .loading-overlay {
+      position: fixed; inset: 0; background: var(--navy);
+      display: grid; place-items: center; z-index: 9999;
+    }
+    .loading-overlay .inner { text-align: center; }
+    .loading-overlay .inner p { color: var(--muted); margin-top: 14px; font-size: 0.9rem; letter-spacing: 0.05em; }
+    .spinner {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 3px solid rgba(200,168,75,0.15);
+      border-top-color: var(--gold);
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ══ LOGIN ════════════════════════════════════════════════════════════ */
+    .login-wrap {
+      min-height: 100vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+    }
+    .login-hero {
+      position: relative;
+      background:
+        linear-gradient(135deg, rgba(11,14,26,0.92) 0%, rgba(11,14,26,0.6) 100%),
+        url("https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=900&q=80") center/cover no-repeat;
+      display: flex; flex-direction: column;
+      justify-content: center; padding: 60px 56px;
+      border-right: 1px solid var(--border);
+    }
+    .login-hero::before {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(200,168,75,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      display: flex; align-items: center; gap: 10px;
+      color: var(--gold); font-size: 0.72rem;
+      text-transform: uppercase; letter-spacing: 0.2em;
+      margin-bottom: 28px;
+    }
+    .hero-eyebrow::before {
+      content: ""; width: 32px; height: 1px; background: var(--gold);
+    }
+    .hero-title {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(2.8rem, 5vw, 4.2rem);
+      line-height: 1.05; margin-bottom: 8px;
+    }
+    .hero-title em {
+      font-style: italic; color: var(--gold);
+    }
+    .hero-motto {
+      margin-top: 28px;
+      border-left: 3px solid var(--gold);
+      padding: 14px 18px;
+      background: rgba(200,168,75,0.06);
+      border-radius: 0 10px 10px 0;
+    }
+    .hero-motto p { font-size: 0.72rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 6px; }
+    .hero-motto blockquote { font-family: "Playfair Display", serif; font-style: italic; font-size: 1.15rem; color: var(--text); }
+    .hero-motto cite { display: block; margin-top: 8px; font-size: 0.72rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+    .login-side {
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 48px 40px;
+      background: var(--navy2);
+    }
+    .login-card {
+      width: min(400px, 100%);
+    }
+    .login-logo {
+      display: flex; flex-direction: column; align-items: center;
+      margin-bottom: 32px; gap: 14px;
+    }
+    .login-logo img {
+      width: 88px; height: 88px; object-fit: contain;
+      filter: drop-shadow(0 8px 24px rgba(200,168,75,0.3));
+    }
+    .login-logo h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.04em; text-align: center; }
+    .login-logo p { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+    .divider { height: 1px; background: var(--border2); margin: 0 0 24px; }
+    .field { display: grid; gap: 6px; }
+    .field label { font-size: 0.8rem; color: var(--text2); letter-spacing: 0.04em; text-transform: uppercase; }
+    .field input, .field select, .field textarea {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 10px; color: var(--text);
+      padding: 12px 14px; outline: none; width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: rgba(200,168,75,0.5);
+      box-shadow: 0 0 0 3px rgba(200,168,75,0.1);
+    }
+    .field select option { background: var(--navy2); }
+    .stack { display: grid; gap: 14px; }
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold), #a8882e);
+      color: #0b0e1a; font-weight: 700; font-size: 0.9rem;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      border: none; border-radius: 10px;
+      padding: 14px 18px; cursor: pointer; width: 100%;
+      transition: filter 0.2s;
+    }
+    .btn-gold:hover { filter: brightness(1.1); }
+    .btn-ghost {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text); border-radius: 9px;
+      padding: 9px 14px; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.09); }
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      color: #fff; font-weight: 700;
+      border: none; border-radius: 9px;
+      padding: 9px 14px; cursor: pointer;
+    }
+    .btn-sm { padding: 7px 12px; font-size: 0.82rem; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), #a8882e);
+      color: #0b0e1a; font-weight: 700;
+      border: none; border-radius: 9px;
+      padding: 10px 16px; cursor: pointer;
+    }
+    .error-msg { color: var(--danger); font-size: 0.85rem; }
+    .demo-creds {
+      background: rgba(200,168,75,0.07);
+      border: 1px solid rgba(200,168,75,0.2);
+      border-radius: 10px; padding: 12px 14px;
+      font-size: 0.8rem; color: var(--text2); line-height: 1.7;
+    }
+    .demo-creds strong { color: var(--gold); display: block; margin-bottom: 4px; }
+
+    /* ══ DASHBOARD ════════════════════════════════════════════════════════ */
+    .dash-shell {
+      display: grid;
+      grid-template-columns: var(--sidebar) 1fr;
+      min-height: 100vh;
+    }
+    .sidebar {
+      position: sticky; top: 0; height: 100vh;
+      background: var(--navy2);
+      border-right: 1px solid var(--border);
+      display: grid; grid-template-rows: auto 1fr auto;
+      padding: 0; overflow-y: auto;
+    }
+    .sidebar-brand {
+      display: flex; align-items: center; gap: 12px;
+      padding: 20px 18px 18px;
+      border-bottom: 1px solid var(--border2);
+    }
+    .sidebar-brand img {
+      width: 44px; height: 44px; object-fit: contain;
+      filter: drop-shadow(0 4px 12px rgba(200,168,75,0.25));
+    }
+    .sidebar-brand h2 { font-size: 0.9rem; font-weight: 700; line-height: 1.2; }
+    .sidebar-brand p { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+    .nav-list { display: grid; gap: 2px; align-content: start; padding: 14px 10px; }
+    .nav-btn {
+      display: flex; align-items: center; gap: 10px;
+      text-align: left; background: transparent;
+      border: 1px solid transparent; border-radius: 10px;
+      color: var(--text2); padding: 11px 12px; cursor: pointer;
+      font-size: 0.88rem; transition: all 0.15s;
+    }
+    .nav-btn .ni { font-size: 1rem; width: 20px; text-align: center; }
+    .nav-btn:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+    .nav-btn.active {
+      background: linear-gradient(135deg, rgba(200,168,75,0.15), rgba(200,168,75,0.05));
+      border-color: rgba(200,168,75,0.3);
+      color: var(--gold);
+    }
+    .sidebar-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 16px;
+      border-top: 1px solid var(--border2);
+    }
+    .avatar {
+      width: 38px; height: 38px; border-radius: 10px;
+      object-fit: cover; border: 1px solid rgba(200,168,75,0.25);
+      background: var(--navy3); flex-shrink: 0;
+    }
+    .avatar.lg { width: 72px; height: 72px; border-radius: 16px; }
+    .su-info p { font-size: 0.86rem; font-weight: 600; }
+    .su-info span { font-size: 0.72rem; color: var(--muted); }
+
+    /* ══ MAIN ═════════════════════════════════════════════════════════════ */
+    .main { padding: 20px; min-width: 0; background: var(--navy); }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--navy2); border: 1px solid var(--border);
+      border-radius: 16px; padding: 16px 22px; margin-bottom: 20px;
+      gap: 12px; flex-wrap: wrap;
+    }
+    .topbar-left .eyebrow {
+      font-size: 0.7rem; color: var(--gold);
+      text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 3px;
+    }
+    .topbar-left h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .online-pill {
+      display: flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border2);
+      border-radius: 999px; padding: 8px 14px;
+      font-size: 0.8rem; color: var(--text2);
+    }
+    .dot-green { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 7px rgba(62,207,142,0.6); }
+    .dot-off   { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ══ STATS ════════════════════════════════════════════════════════════ */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 14px; margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--navy2); border: 1px solid var(--border);
+      border-radius: 16px; padding: 18px 20px;
+      position: relative; overflow: hidden;
+    }
+    .stat-card::after {
+      content: ""; position: absolute;
+      top: -30px; right: -30px;
+      width: 80px; height: 80px; border-radius: 50%;
+      background: var(--gold-glow); filter: blur(20px);
+      pointer-events: none;
+    }
+    .stat-card .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .stat-card .val { font-size: 2.2rem; font-weight: 700; margin-top: 6px; }
+    .val.gold  { color: var(--gold); }
+    .val.red   { color: var(--red); }
+    .val.blue  { color: var(--blue); }
+    .val.green { color: var(--success); }
+
+    /* ══ PANELS ═══════════════════════════════════════════════════════════ */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .panel {
+      background: var(--navy2); border: 1px solid var(--border2);
+      border-radius: 18px; padding: 20px;
+    }
+    .panel-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; gap: 8px; }
+    .panel-head .eyebrow { font-size: 0.68rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 3px; }
+    .panel-head h3 { font-size: 0.98rem; font-weight: 700; }
+    .feed { display: grid; gap: 9px; }
+    .feed-item {
+      background: rgba(0,0,0,0.2); border: 1px solid var(--border2);
+      border-radius: 12px; padding: 12px 14px;
+    }
+    .feed-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+    .feed-title { display: flex; align-items: center; gap: 9px; }
+    .badge {
+      width: 32px; height: 32px; border-radius: 9px;
+      display: grid; place-items: center; font-size: 0.9rem; flex-shrink: 0;
+    }
+    .badge.warn { background: rgba(245,158,11,0.15); color: var(--warn); }
+    .badge.kick { background: rgba(74,127,255,0.15); color: var(--blue); }
+    .badge.ban  { background: rgba(239,68,68,0.15);  color: var(--danger); }
+    .badge.op   { background: rgba(62,207,142,0.15); color: var(--success); }
+    .badge.command { background: rgba(200,168,75,0.15); color: var(--gold); }
+    .chip {
+      font-size: 0.72rem; border-radius: 999px; padding: 3px 10px;
+      background: rgba(200,168,75,0.1); color: var(--gold);
+      border: 1px solid rgba(200,168,75,0.2); white-space: nowrap;
+    }
+    .chip.blue  { background: rgba(74,127,255,0.1);  color: var(--blue);    border-color: rgba(74,127,255,0.2); }
+    .chip.green { background: rgba(62,207,142,0.1);  color: var(--success); border-color: rgba(62,207,142,0.2); }
+    .chip.red   { background: rgba(239,68,68,0.1);   color: var(--danger);  border-color: rgba(239,68,68,0.2); }
+    .text-muted { color: var(--muted); font-size: 0.8rem; }
+    .grade-pill {
+      display: inline-flex; align-items: center;
+      border-radius: 999px; padding: 4px 12px;
+      font-size: 0.75rem; font-weight: 600;
+      background: rgba(200,168,75,0.1); color: var(--gold);
+      border: 1px solid rgba(200,168,75,0.25);
+    }
+    .members-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px,1fr)); gap: 14px; }
+    .member-card {
+      background: rgba(0,0,0,0.2); border: 1px solid var(--border2);
+      border-radius: 14px; padding: 16px; display: grid; gap: 10px;
+    }
+    .member-head { display: flex; align-items: center; gap: 11px; }
+    .member-info p { font-weight: 600; font-size: 0.92rem; }
+    .member-info span { font-size: 0.75rem; color: var(--muted); }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 11px 12px; text-align: left; border-bottom: 1px solid var(--border2); font-size: 0.85rem; }
+    th { color: var(--text2); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    td { color: var(--text2); }
+    td strong { color: var(--text); }
+    .op-status { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; }
+    .roblox-result {
+      display: none; align-items: center; gap: 12px;
+      padding: 12px 14px; background: rgba(200,168,75,0.06);
+      border: 1px solid rgba(200,168,75,0.2); border-radius: 12px;
+    }
+    .roblox-result.show { display: flex; }
+    .toast-wrap { position: fixed; bottom: 18px; right: 18px; display: grid; gap: 8px; z-index: 999; pointer-events: none; }
+    .toast {
+      background: var(--navy2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 13px 16px;
+      min-width: 220px; box-shadow: var(--shadow);
+      pointer-events: auto;
+    }
+    .toast strong { display: block; font-size: 0.88rem; }
+    .toast p { color: var(--muted); font-size: 0.8rem; margin-top: 3px; }
+
+    @media (max-width: 1100px) {
+      .login-wrap { grid-template-columns: 1fr; }
+      .login-hero { display: none; }
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+      .two-col { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 780px) {
+      .dash-shell { grid-template-columns: 1fr; }
+      .sidebar { position: relative; height: auto; }
+      .nav-list { display: none; }
+      .nav-list.open { display: grid; }
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .main { padding: 12px; }
+      .login-side { padding: 32px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-overlay" class="loading-overlay">
+  <div class="inner">
+    <div class="spinner"></div>
+    <p>CONNESSIONE AL DATABASE...</p>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-wrap hidden">
+
+  <!-- Hero sinistra -->
+  <div class="login-hero">
+    <p class="hero-eyebrow">Repubblica Italiana — Arma dei Carabinieri</p>
+    <h1 class="hero-title">Nei Secoli<br><em>Fedele.</em></h1>
+    <p style="color:var(--text2);margin-top:16px;max-width:380px;line-height:1.7;font-size:0.92rem;">
+      Pannello di gestione riservato al personale dell'Arma. Accesso consentito solo al personale autorizzato.
+    </p>
+    <div class="hero-motto">
+      <p>Motto dell'Arma</p>
+      <blockquote>«Nei secoli fedele»</blockquote>
+      <cite>— Tradizione dell'Arma —</cite>
+    </div>
+  </div>
+
+  <!-- Form destra -->
+  <div class="login-side">
+    <div class="login-card">
+      <div class="login-logo">
+        <img src="https://res.cloudinary.com/dajjun43n/image/upload/v1776556698/occofjisvhzbzgfdn6qc.webp" alt="Arma dei Carabinieri">
+        <h1>Arma dei Carabinieri</h1>
+        <p>Staff Panel — Accesso Riservato</p>
+      </div>
+      <div class="divider"></div>
+      <form id="login-form" class="stack">
+        <label class="field">
+          <label>Username</label>
+          <input id="login-user" type="text" autocomplete="username" placeholder="Il tuo username">
+        </label>
+        <label class="field">
+          <label>Password</label>
+          <input id="login-pass" type="password" autocomplete="current-password" placeholder="••••••••">
+        </label>
+        <button class="btn-gold" type="submit">ACCEDI AL PANNELLO</button>
+        <p id="login-err" class="error-msg hidden"></p>
+        <div class="demo-creds">
+          <strong>Credenziali test</strong>
+          comandante / Carabinieri2025!<br>
+          maresciallo / Carabinieri2025!
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dash" class="dash-shell hidden">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="https://res.cloudinary.com/dajjun43n/image/upload/v1776556698/occofjisvhzbzgfdn6qc.webp" alt="logo">
+      <div>
+        <h2>Carabinieri</h2>
+        <p>Staff Panel</p>
+      </div>
+    </div>
+    <nav class="nav-list" id="nav-list">
+      <button class="nav-btn active" data-sec="dashboard"><span class="ni">📊</span>Dashboard</button>
+      <button class="nav-btn" data-sec="personale"><span class="ni">👥</span>Personale</button>
+      <button class="nav-btn" data-sec="sanzioni"><span class="ni">⚖️</span>Sanzioni</button>
+      <button class="nav-btn" data-sec="operazioni"><span class="ni">🎯</span>Operazioni</button>
+      <button class="nav-btn" data-sec="logs"><span class="ni">📋</span>Logs</button>
+      <button class="nav-btn" id="nav-comando" data-sec="comando"><span class="ni">🎖️</span>Comando</button>
+      <button class="nav-btn" data-sec="profilo"><span class="ni">👤</span>Profilo</button>
+    </nav>
+    <div class="sidebar-user">
+      <img id="sb-avatar" class="avatar" src="" alt="avatar">
+      <div class="su-info">
+        <p id="sb-name">—</p>
+        <span id="sb-grade">—</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <p class="eyebrow">Arma dei Carabinieri — Staff Panel</p>
+        <h1 id="page-title">Dashboard</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="online-pill"><span class="dot-green"></span><span id="online-count">0 online</span></div>
+        <button id="logout-btn" class="btn-danger btn-sm">Logout</button>
+      </div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <div id="sec-dashboard" class="section active">
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Live Feed</p><h3>Azioni recenti</h3></div></div>
+          <div class="feed" id="feed-recent"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Operazioni</p><h3>Attive ora</h3></div></div>
+          <div class="feed" id="feed-ops"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERSONALE -->
+    <div id="sec-personale" class="section">
+      <div class="panel" style="margin-bottom:18px;">
+        <div class="panel-head"><div><p class="eyebrow">Roblox API</p><h3>Cerca e aggiungi carabiniere</h3></div></div>
+        <div class="stack" style="max-width:500px;">
+          <div style="display:grid;grid-template-columns:1fr auto;gap:8px;">
+            <input id="rb-input" type="text" placeholder="Username Roblox" style="background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.09);border-radius:10px;color:var(--text);padding:11px 14px;outline:none;">
+            <button id="rb-btn" class="btn-ghost">Cerca</button>
+          </div>
+          <div id="rb-result" class="roblox-result">
+            <img id="rb-avatar" src="" alt="avatar" style="width:46px;height:46px;border-radius:10px;object-fit:cover;border:1px solid rgba(200,168,75,0.3);">
+            <div style="flex:1;"><strong id="rb-name"></strong><p class="text-muted" id="rb-id"></p></div>
+            <button id="rb-add" class="btn-primary btn-sm">Aggiungi</button>
+          </div>
+        </div>
+      </div>
+      <div class="members-grid" id="members-grid"></div>
+    </div>
+
+    <!-- SANZIONI -->
+    <div id="sec-sanzioni" class="section">
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">Moderazione</p><h3>Emetti sanzione</h3></div>
+            <span class="chip">3 warn = ban 24h</span>
+          </div>
+          <form id="sanction-form" class="stack">
+            <label class="field"><label>Carabiniere</label><select id="s-target"></select></label>
+            <label class="field"><label>Tipo</label>
+              <select id="s-type">
+                <option value="warn">⚠️ Warn</option>
+                <option value="kick">👢 Kick</option>
+                <option value="ban">🚫 Ban</option>
+              </select>
+            </label>
+            <label class="field"><label>Motivo</label><textarea id="s-reason" rows="3" placeholder="Motivo della sanzione"></textarea></label>
+            <label class="field hidden" id="ban-dur-wrap"><label>Durata ban</label>
+              <select id="s-dur">
+                <option value="24">24 ore</option>
+                <option value="48">48 ore</option>
+                <option value="168">7 giorni</option>
+                <option value="0">Permanente</option>
+              </select>
+            </label>
+            <button class="btn-gold" type="submit">EMETTI SANZIONE</button>
+          </form>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Registro</p><h3>Sanzioni recenti</h3></div></div>
+          <div class="feed" id="sanctions-feed"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPERAZIONI -->
+    <div id="sec-operazioni" class="section">
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Nuova operazione</p><h3>Avvia</h3></div></div>
+          <form id="op-form" class="stack">
+            <label class="field"><label>Nome operazione</label><input id="op-name" type="text" placeholder="Es. Operazione Aquila"></label>
+            <label class="field"><label>Tipo</label>
+              <select id="op-type">
+                <option value="pattuglia">Pattuglia</option>
+                <option value="arresto">Arresto</option>
+                <option value="inseguimento">Inseguimento</option>
+                <option value="perquisizione">Perquisizione</option>
+                <option value="altro">Altro</option>
+              </select>
+            </label>
+            <label class="field"><label>Note</label><textarea id="op-notes" rows="3" placeholder="Dettagli operazione"></textarea></label>
+            <button class="btn-gold" type="submit">AVVIA OPERAZIONE</button>
+          </form>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Storico</p><h3>Tutte le operazioni</h3></div></div>
+          <div class="feed" id="ops-feed"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGS -->
+    <div id="sec-logs" class="section">
+      <div class="panel">
+        <div class="panel-head"><div><p class="eyebrow">Archivio completo</p><h3>Log attività</h3></div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tipo</th><th>Soggetto</th><th>Motivo</th><th>Staff</th><th>Data</th></tr></thead>
+            <tbody id="logs-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMANDO -->
+    <div id="sec-comando" class="section">
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Gestione staff</p><h3>Aggiungi membro</h3></div></div>
+          <div id="cmd-form-wrap">
+            <form id="staff-form" class="stack">
+              <label class="field"><label>Username login</label><input id="n-user" type="text" placeholder="username"></label>
+              <label class="field"><label>Nome Roblox</label><input id="n-roblox" type="text" placeholder="Username Roblox"></label>
+              <label class="field"><label>Nome visualizzato</label><input id="n-display" type="text" placeholder="Nome e Cognome"></label>
+              <label class="field"><label>Grado</label>
+                <select id="n-grade">
+                  <option>Carabiniere</option><option>Appuntato</option>
+                  <option>Brigadiere</option><option>Maresciallo</option>
+                  <option>Tenente</option><option>Capitano</option>
+                  <option>Comandante</option>
+                </select>
+              </label>
+              <label class="field"><label>Password temporanea</label><input id="n-pass" type="password" placeholder="Min 8 caratteri"></label>
+              <button class="btn-gold" type="submit">AGGIUNGI MEMBRO</button>
+            </form>
+          </div>
+          <div id="cmd-lock" class="hidden" style="color:var(--muted);padding:24px;text-align:center;border:1px dashed rgba(255,255,255,0.1);border-radius:12px;font-size:0.88rem;">
+            🔒 Solo Capitano e Comandante possono accedere a quest'area.
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Organico</p><h3>Tutti i membri staff</h3></div></div>
+          <div class="members-grid" id="staff-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILO -->
+    <div id="sec-profilo" class="section">
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Il tuo profilo</p><h3>Modifica dati</h3></div></div>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:22px;">
+            <img id="prof-avatar" class="avatar lg" src="" alt="avatar">
+            <div>
+              <p id="prof-name" style="font-size:1.1rem;font-weight:700;"></p>
+              <p id="prof-grade" class="text-muted" style="margin-top:4px;"></p>
+            </div>
+          </div>
+          <form id="profile-form" class="stack">
+            <label class="field"><label>Nome visualizzato</label><input id="p-display" type="text"></label>
+            <label class="field"><label>Nome Roblox</label><input id="p-roblox" type="text"></label>
+            <button class="btn-gold" type="submit">SALVA MODIFICHE</button>
+          </form>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Sicurezza</p><h3>Cambia password</h3></div></div>
+          <form id="pass-form" class="stack">
+            <label class="field"><label>Password attuale</label><input id="pw-old" type="password" placeholder="Password attuale"></label>
+            <label class="field"><label>Nuova password</label><input id="pw-new" type="password" placeholder="Min 8 caratteri"></label>
+            <label class="field"><label>Conferma</label><input id="pw-confirm" type="password" placeholder="Ripeti la nuova password"></label>
+            <button class="btn-gold" type="submit">AGGIORNA PASSWORD</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast-wrap" class="toast-wrap"></div>
+
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+  const SUPABASE_URL     = "https://zaxqbfdcpdeemddaclzjy.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpheHFiZmRjcGRlZW1kYWNsemp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MzE2NjgsImV4cCI6MjA5MjEwNzY2OH0.Vzh9Gxubu0QZlHJmcw8-sWMjy3zl946VX0PLcWXQU4Q";
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const LOGO = "https://res.cloudinary.com/dajjun43n/image/upload/v1776556698/occofjisvhzbzgfdn6qc.webp";
+  const FALLBACK = "https://tr.rbxcdn.com/180DAY-6f5f2d2f73728d0f0d3a56d98d0d2178/150/150/AvatarHeadshot/Png";
+  const CMD_GRADES = ["Capitano","Comandante"];
+  const robloxCache = {};
+  let currentUser = null;
+
+  // ── utils ──────────────────────────────────────────────────────────────
+  const $ = id => document.getElementById(id);
+  const fmt = iso => iso ? new Date(iso).toLocaleString("it-IT") : "—";
+
+  function toast(title, msg = "", color = "var(--gold)") {
+    const el = document.createElement("article");
+    el.className = "toast";
+    el.innerHTML = `<strong style="color:${color}">${title}</strong>${msg ? `<p>${msg}</p>` : ""}`;
+    $("toast-wrap").appendChild(el);
+    setTimeout(() => el.remove(), 3200);
+  }
+
+  function setSection(name) {
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+    const s = $("sec-" + name); if (s) s.classList.add("active");
+    const b = document.querySelector(`[data-sec="${name}"]`); if (b) b.classList.add("active");
+    const titles = { dashboard:"Dashboard", personale:"Personale", sanzioni:"Sanzioni", operazioni:"Operazioni", logs:"Logs", comando:"Comando", profilo:"Profilo" };
+    $("page-title").textContent = titles[name] || name;
+  }
+
+  async function hashPw(pw) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(pw));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+  }
+
+  async function fetchRoblox(username) {
+    if (!username) return { userId: null, avatarUrl: FALLBACK };
+    if (robloxCache[username]) return robloxCache[username];
+    try {
+      const r = await fetch("/api/roblox?username=" + encodeURIComponent(username));
+      const d = r.ok ? await r.json() : { userId: null, avatarUrl: FALLBACK };
+      robloxCache[username] = d; return d;
+    } catch { return { userId: null, avatarUrl: FALLBACK }; }
+  }
+
+  function chipHtml(type) {
+    const map = { warn:["warn","⚠️ WARN"], kick:["blue","👢 KICK"], ban:["red","🚫 BAN"], op:["green","🎯 OP"], command:["","⌨️ CMD"] };
+    const [cls, label] = map[type] || ["","?"];
+    return `<span class="chip ${cls}">${label}</span>`;
+  }
+  function badgeHtml(type) {
+    const icons = { warn:"⚠️", kick:"👢", ban:"🚫", op:"🎯", command:"⌨️" };
+    return `<div class="badge ${type}">${icons[type]||"📌"}</div>`;
+  }
+  function gradeColor(g) {
+    return { Comandante:"var(--red)", Capitano:"var(--gold)", Tenente:"var(--blue)", Maresciallo:"var(--success)" }[g] || "var(--muted)";
+  }
+
+  // ── render ─────────────────────────────────────────────────────────────
+  async function renderDashboard() {
+    const [{ data: logs }, { data: ops }, { data: staff }] = await Promise.all([
+      sb.from("logs").select("*").order("created_at",{ascending:false}).limit(50),
+      sb.from("operations").select("*").eq("status","active").order("created_at",{ascending:false}),
+      sb.from("staff").select("online")
+    ]);
+    const today = new Date().toDateString();
+    let warns=0, kicks=0, bans=0, online=0;
+    (logs||[]).forEach(l => {
+      if (new Date(l.created_at).toDateString()===today) {
+        if(l.type==="warn") warns++;
+        if(l.type==="kick") kicks++;
+        if(l.type==="ban")  bans++;
+      }
+    });
+    (staff||[]).forEach(s => { if(s.online) online++; });
+    $("online-count").textContent = online + " online";
+    $("stats-grid").innerHTML = [
+      {lbl:"Warn oggi",  val:warns,  cls:"gold"},
+      {lbl:"Kick oggi",  val:kicks,  cls:"blue"},
+      {lbl:"Ban oggi",   val:bans,   cls:"red"},
+      {lbl:"Staff online",val:online,cls:"green"}
+    ].map(c=>`<div class="stat-card"><p class="lbl">${c.lbl}</p><p class="val ${c.cls}">${c.val}</p></div>`).join("");
+
+    $("feed-recent").innerHTML = (logs||[]).slice(0,6).map(l=>`
+      <div class="feed-item">
+        <div class="feed-row"><div class="feed-title">${badgeHtml(l.type)}<strong>${l.subject_name}</strong></div>${chipHtml(l.type)}</div>
+        <p class="text-muted">${l.staff_name} · ${fmt(l.created_at)}</p>
+      </div>`).join("") || "<p class='text-muted'>Nessuna azione recente.</p>";
+
+    $("feed-ops").innerHTML = (ops||[]).slice(0,5).map(o=>`
+      <div class="feed-item">
+        <div class="feed-row"><strong>${o.name}</strong><span class="chip green">${o.type}</span></div>
+        <p class="text-muted">${o.staff_name} · ${fmt(o.created_at)}</p>
+      </div>`).join("") || "<p class='text-muted'>Nessuna operazione attiva.</p>";
+  }
+
+  async function renderPersonale() {
+    const { data } = await sb.from("members").select("*").order("display_name");
+    $("members-grid").innerHTML = (data||[]).map(m=>`
+      <div class="member-card">
+        <div class="member-head">
+          <img class="avatar" src="${m.avatar_url||FALLBACK}" alt="${m.display_name}">
+          <div class="member-info"><p>${m.display_name}</p><span>@${m.roblox_name}</span></div>
+        </div>
+        <span class="grade-pill" style="color:${gradeColor(m.grade)};border-color:${gradeColor(m.grade)}40;background:${gradeColor(m.grade)}15">${m.grade||"—"}</span>
+        <p class="text-muted">Warn: ${m.warns||0} · Ban: ${m.active_ban_until?"Attivo":"No"}</p>
+      </div>`).join("") || "<p class='text-muted'>Nessun membro.</p>";
+  }
+
+  async function renderSanzioni() {
+    const { data: members } = await sb.from("members").select("id,display_name").order("display_name");
+    $("s-target").innerHTML = (members||[]).map(m=>`<option value="${m.id}">${m.display_name}</option>`).join("");
+    const { data: logs } = await sb.from("logs").select("*").in("type",["warn","kick","ban"]).order("created_at",{ascending:false}).limit(30);
+    $("sanctions-feed").innerHTML = (logs||[]).map(l=>`
+      <div class="feed-item">
+        <div class="feed-row"><div class="feed-title">${badgeHtml(l.type)}<strong>${l.subject_name}</strong></div>${chipHtml(l.type)}</div>
+        <p class="text-muted">${l.reason||"—"}</p>
+        <p class="text-muted">${l.staff_name} · ${fmt(l.created_at)}</p>
+      </div>`).join("") || "<p class='text-muted'>Nessuna sanzione.</p>";
+  }
+
+  async function renderOperazioni() {
+    const { data: ops } = await sb.from("operations").select("*").order("created_at",{ascending:false}).limit(40);
+    $("ops-feed").innerHTML = (ops||[]).map(o=>`
+      <div class="feed-item">
+        <div class="feed-row">
+          <strong>${o.name}</strong>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="chip ${o.status==="active"?"green":""}">${o.type}</span>
+            <div class="op-status"><div class="${o.status==="active"?"dot-green":"dot-off"}"></div>${o.status==="active"?"Attiva":"Chiusa"}</div>
+            ${o.status==="active"?`<button class="btn-ghost btn-sm" data-close="${o.id}">Chiudi</button>`:""}
+          </div>
+        </div>
+        <p class="text-muted">${o.notes||""}</p>
+        <p class="text-muted">${o.staff_name} · ${fmt(o.created_at)}</p>
+      </div>`).join("") || "<p class='text-muted'>Nessuna operazione.</p>";
+
+    document.querySelectorAll("[data-close]").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        await sb.from("operations").update({status:"closed"}).eq("id", btn.getAttribute("data-close"));
+        toast("Operazione chiusa","","var(--success)");
+        renderOperazioni(); renderDashboard();
+      });
+    });
+  }
+
+  async function renderLogs() {
+    const { data } = await sb.from("logs").select("*").order("created_at",{ascending:false}).limit(100);
+    $("logs-tbody").innerHTML = (data||[]).map(l=>`
+      <tr><td>${chipHtml(l.type)}</td><td><strong>${l.subject_name}</strong></td><td>${l.reason||"—"}</td><td>${l.staff_name}</td><td>${fmt(l.created_at)}</td></tr>
+    `).join("") || `<tr><td colspan="5" class="text-muted">Nessun log.</td></tr>`;
+  }
+
+  async function renderComando() {
+    const can = CMD_GRADES.includes(currentUser?.role);
+    $("cmd-form-wrap").classList.toggle("hidden", !can);
+    $("cmd-lock").classList.toggle("hidden", can);
+    const { data } = await sb.from("staff").select("*").order("display_name");
+    $("staff-grid").innerHTML = (data||[]).map(s=>`
+      <div class="member-card">
+        <div class="member-head">
+          <img class="avatar" src="${s.avatar_url||FALLBACK}" alt="${s.display_name}">
+          <div class="member-info"><p>${s.display_name}</p><span>@${s.username}</span></div>
+        </div>
+        <span class="grade-pill" style="color:${gradeColor(s.role)};border-color:${gradeColor(s.role)}40;background:${gradeColor(s.role)}15">${s.role}</span>
+        <div class="op-status"><div class="${s.online?"dot-green":"dot-off"}"></div>${s.online?"Online":"Offline"}</div>
+      </div>`).join("") || "<p class='text-muted'>Nessuno staff.</p>";
+  }
+
+  function renderProfilo() {
+    if (!currentUser) return;
+    $("prof-avatar").src = currentUser.avatar_url || FALLBACK;
+    $("prof-name").textContent = currentUser.display_name;
+    $("prof-grade").textContent = currentUser.role + " · @" + currentUser.username;
+    $("p-display").value = currentUser.display_name;
+    $("p-roblox").value = currentUser.roblox_name || "";
+  }
+
+  // ── init dashboard ─────────────────────────────────────────────────────
+  async function initDash() {
+    $("sb-avatar").src = currentUser.avatar_url || FALLBACK;
+    $("sb-name").textContent = currentUser.display_name;
+    $("sb-grade").textContent = currentUser.role;
+    $("nav-comando").classList.toggle("hidden", !CMD_GRADES.includes(currentUser.role));
+    await renderDashboard();
+    renderProfilo();
+
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const sec = btn.getAttribute("data-sec");
+        setSection(sec);
+        if (sec==="personale")  await renderPersonale();
+        if (sec==="sanzioni")   await renderSanzioni();
+        if (sec==="operazioni") await renderOperazioni();
+        if (sec==="logs")       await renderLogs();
+        if (sec==="comando")    await renderComando();
+        if (sec==="profilo")    renderProfilo();
+      });
+    });
+
+    $("logout-btn").addEventListener("click", async () => {
+      await sb.from("staff").update({online:false}).eq("id", currentUser.id);
+      currentUser = null;
+      $("dash").classList.add("hidden");
+      $("login-screen").classList.remove("hidden");
+    });
+
+    // Sanzione
+    $("s-type").addEventListener("change", () => {
+      $("ban-dur-wrap").classList.toggle("hidden", $("s-type").value !== "ban");
+    });
+    $("sanction-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const memberId = $("s-target").value;
+      const type = $("s-type").value;
+      const reason = $("s-reason").value.trim() || "Motivo non specificato";
+      const { data: m } = await sb.from("members").select("*").eq("id", memberId).single();
+      if (!m) return;
+      let expiresAt = null;
+      if (type==="warn") {
+        const nw = (m.warns||0)+1;
+        const upd = { warns:nw, last_reason:reason };
+        if (nw>=3) {
+          expiresAt = new Date(Date.now()+24*3600*1000).toISOString();
+          upd.active_ban_until = expiresAt;
+          await sb.from("logs").insert({type:"ban",subject_name:m.display_name,subject_id:m.id,reason:"Auto-ban: 3 warn",staff_name:currentUser.display_name,staff_id:currentUser.id,expires_at:expiresAt});
+          toast("Auto-ban attivato", m.display_name+" bannato 24h","var(--danger)");
+        }
+        await sb.from("members").update(upd).eq("id",memberId);
+      } else if (type==="kick") {
+        await sb.from("members").update({last_reason:reason}).eq("id",memberId);
+      } else if (type==="ban") {
+        const h = parseInt($("s-dur").value);
+        expiresAt = h>0 ? new Date(Date.now()+h*3600*1000).toISOString() : null;
+        await sb.from("members").update({active_ban_until:expiresAt,last_reason:reason}).eq("id",memberId);
+      }
+      await sb.from("logs").insert({type,subject_name:m.display_name,subject_id:m.id,reason,staff_name:currentUser.display_name,staff_id:currentUser.id,expires_at:expiresAt});
+      toast("Sanzione emessa", type.toUpperCase()+" per "+m.display_name,"var(--warn)");
+      e.target.reset(); $("ban-dur-wrap").classList.add("hidden");
+      renderSanzioni(); renderDashboard();
+    });
+
+    // Operazione
+    $("op-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const name = $("op-name").value.trim(); if (!name) return;
+      await sb.from("operations").insert({name,type:$("op-type").value,notes:$("op-notes").value.trim(),status:"active",staff_name:currentUser.display_name,staff_id:currentUser.id});
+      await sb.from("logs").insert({type:"op",subject_name:name,reason:$("op-type").value,staff_name:currentUser.display_name,staff_id:currentUser.id});
+      toast("Operazione avviata", name,"var(--success)");
+      e.target.reset(); renderOperazioni(); renderDashboard();
+    });
+
+    // Staff form
+    $("staff-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      if (!CMD_GRADES.includes(currentUser.role)) return;
+      const user=$("n-user").value.trim(), roblox=$("n-roblox").value.trim(), display=$("n-display").value.trim(), pass=$("n-pass").value;
+      if (!user||!display||!pass) { toast("Errore","Compila tutti i campi","var(--danger)"); return; }
+      const hash = await hashPw(pass);
+      const { avatarUrl } = await fetchRoblox(roblox);
+      const { error } = await sb.from("staff").insert({username:user,password_hash:hash,display_name:display,role:$("n-grade").value,roblox_name:roblox,avatar_url:avatarUrl,online:false});
+      if (error) { toast("Errore",error.message,"var(--danger)"); return; }
+      toast("Staff aggiunto", display,"var(--success)");
+      e.target.reset(); renderComando();
+    });
+
+    // Profilo
+    $("profile-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const display=$("p-display").value.trim(), roblox=$("p-roblox").value.trim();
+      const { avatarUrl } = await fetchRoblox(roblox);
+      await sb.from("staff").update({display_name:display,roblox_name:roblox,avatar_url:avatarUrl}).eq("id",currentUser.id);
+      Object.assign(currentUser,{display_name:display,roblox_name:roblox,avatar_url:avatarUrl});
+      renderProfilo(); $("sb-avatar").src=avatarUrl; $("sb-name").textContent=display;
+      toast("Profilo aggiornato","","var(--success)");
+    });
+
+    // Password
+    $("pass-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const oldPw=$("pw-old").value, newPw=$("pw-new").value, conf=$("pw-confirm").value;
+      if (newPw!==conf) { toast("Errore","Le password non coincidono","var(--danger)"); return; }
+      if (newPw.length<8) { toast("Errore","Minimo 8 caratteri","var(--danger)"); return; }
+      if (await hashPw(oldPw)!==currentUser.password_hash) { toast("Errore","Password attuale errata","var(--danger)"); return; }
+      const h = await hashPw(newPw);
+      await sb.from("staff").update({password_hash:h}).eq("id",currentUser.id);
+      currentUser.password_hash=h;
+      toast("Password aggiornata","","var(--success)"); e.target.reset();
+    });
+
+    // Roblox search
+    $("rb-btn").addEventListener("click", doRobloxSearch);
+    $("rb-input").addEventListener("keydown", e => { if(e.key==="Enter"){e.preventDefault();doRobloxSearch();} });
+    $("rb-add").addEventListener("click", addMember);
+  }
+
+  let rbData = null;
+  async function doRobloxSearch() {
+    const u = $("rb-input").value.trim(); if (!u) return;
+    $("rb-btn").textContent="..."; $("rb-btn").disabled=true;
+    $("rb-result").classList.remove("show");
+    rbData = await fetchRoblox(u);
+    $("rb-btn").textContent="Cerca"; $("rb-btn").disabled=false;
+    if (!rbData.userId) { toast("Non trovato","Nessun utente: "+u,"var(--danger)"); return; }
+    $("rb-avatar").src = rbData.avatarUrl;
+    $("rb-name").textContent = rbData.username||u;
+    $("rb-id").textContent = "ID: "+rbData.userId;
+    $("rb-result").classList.add("show");
+  }
+
+  async function addMember() {
+    if (!rbData) return;
+    const name = rbData.username || $("rb-input").value.trim();
+    const { data: ex } = await sb.from("members").select("id").eq("roblox_name",name).single();
+    if (ex) { toast("Già presente",name+" è già nel registro"); return; }
+    await sb.from("members").insert({roblox_name:name,display_name:name,avatar_url:rbData.avatarUrl,warns:0,grade:"Carabiniere"});
+    toast("Aggiunto",name,"var(--success)");
+    $("rb-result").classList.remove("show"); $("rb-input").value=""; rbData=null;
+    renderPersonale();
+  }
+
+  // ── boot ───────────────────────────────────────────────────────────────
+  async function boot() {
+    try {
+      await sb.from("staff").select("id").limit(1);
+    } catch { /* continua comunque */ }
+    $("loading-overlay").classList.add("hidden");
+    $("login-screen").classList.remove("hidden");
+  }
+
+  $("login-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const username = $("login-user").value.trim();
+    const password = $("login-pass").value;
+    const errEl = $("login-err");
+    errEl.classList.add("hidden");
+    try {
+      const hash = await hashPw(password);
+      const { data, error } = await sb.from("staff").select("*").eq("username",username).eq("password_hash",hash).single();
+      if (error||!data) throw new Error("Credenziali non valide");
+      currentUser = data;
+      await sb.from("staff").update({online:true}).eq("id",currentUser.id);
+      $("login-screen").classList.add("hidden");
+      $("dash").classList.remove("hidden");
+      await initDash();
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.classList.remove("hidden");
+    }
+  });
+
+  boot();
+</script>
+</body>
+</html>
