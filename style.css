@@ -717,3 +717,19 @@ a.contact-card-link:hover {
   transform: translateY(-3px);
   transition: all 0.3s;
 }
+
+/* Area Personale nav link */
+.nav-area-personale {
+  color: var(--gold) !important;
+  border: 1px solid rgba(201,168,76,0.4);
+  padding: 0.4rem 0.9rem !important;
+  border-radius: 2px;
+  transition: background 0.2s, border-color 0.2s !important;
+}
+
+.nav-area-personale:hover {
+  background: rgba(201,168,76,0.1);
+  border-color: var(--gold);
+}
+
+.nav-area-personale::after { display: none !important; }
