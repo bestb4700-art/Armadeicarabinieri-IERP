@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff Panel — Arma dei Carabinieri IERP</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+
+  <!-- LOGIN PAGE -->
+  <div id="loginPage" class="login-page">
+    <div class="login-left">
+      <div class="login-left-content">
+        <p class="hero-label">Repubblica Italiana — Arma dei Carabinieri</p>
+        <h1 class="hero-title">Nei Secoli<br /><em>Fedele.</em></h1>
+        <p class="login-desc">Pannello di gestione riservato al personale dell'Arma.<br />Accesso consentito solo al personale autorizzato.</p>
+        <div class="motto-box">
+          <p class="motto-label">Motto dell'Arma</p>
+          <p class="motto-text">«Nei Secoli Fedele»</p>
+          <p class="motto-sub">— Tradizione dell'Arma —</p>
+        </div>
+      </div>
+    </div>
+    <div class="login-right">
+      <div class="login-form-wrap">
+        <img src="https://res.cloudinary.com/dajjun43n/image/upload/v1776556698/occofjisvhzbzgfdn6qc.webp" alt="Logo" class="login-logo" />
+        <h2>Arma dei Carabinieri</h2>
+        <p class="login-subtitle">STAFF PANEL — ACCESSO RISERVATO</p>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label>USERNAME</label>
+            <input type="text" id="loginUsername" placeholder="Il tuo username" autocomplete="off" required />
+          </div>
+          <div class="form-group">
+            <label>PASSWORD</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" required />
+          </div>
+          <p class="login-error" id="loginError"></p>
+          <button type="submit" class="btn-login" id="loginBtn">ACCEDI AL PANNELLO</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div id="adminPanel" class="admin-panel hidden">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="https://res.cloudinary.com/dajjun43n/image/upload/v1776556698/occofjisvhzbzgfdn6qc.webp" alt="Logo" />
+        <div>
+          <p class="sb-name">Arma dei Carabinieri</p>
+          <p class="sb-sub">I.E.R.P.</p>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="sb-link active" data-tab="personale">👥 Personale</a>
+        <a href="#" class="sb-link" data-tab="aggiungi">➕ Aggiungi Membro</a>
+        <a href="#" class="sb-link" data-tab="admin" id="adminTabLink">🔐 Gestione Admin</a>
+      </nav>
+      <div class="sidebar-user">
+        <p class="sb-logged">Connesso come</p>
+        <p class="sb-username" id="loggedUsername">—</p>
+        <button class="btn-logout" id="logoutBtn">Esci</button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="admin-main">
+
+      <!-- TAB: Personale -->
+      <div class="tab-content active" id="tab-personale">
+        <div class="panel-header">
+          <h2>Personale dell'Arma</h2>
+          <p>Lista di tutto il personale registrato su IERP</p>
+        </div>
+        <div class="table-wrap">
+          <table class="staff-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nome</th>
+                <th>Grado</th>
+                <th>Reparto</th>
+                <th>Stato</th>
+                <th>Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="staffTableBody">
+              <tr><td colspan="6" class="table-empty">Nessun membro registrato.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: Aggiungi Membro -->
+      <div class="tab-content hidden" id="tab-aggiungi">
+        <div class="panel-header">
+          <h2>Aggiungi Membro</h2>
+          <p>Inserisci un nuovo membro nel registro dell'Arma</p>
+        </div>
+        <form class="admin-form" id="addMemberForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>NOME COMPLETO</label>
+              <input type="text" id="memberName" placeholder="Es. Mario Rossi" required />
+            </div>
+            <div class="form-group">
+              <label>USERNAME ROBLOX</label>
+              <input type="text" id="memberRoblox" placeholder="Es. MarioRossi123" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>GRADO</label>
+              <select id="memberGrade" required>
+                <option value="">Seleziona grado</option>
+                <option>Carabiniere</option>
+                <option>Carabiniere Scelto</option>
+                <option>Appuntato</option>
+                <option>Appuntato Scelto</option>
+                <option>Vicebrigadiere</option>
+                <option>Brigadiere</option>
+                <option>Brigadiere Capo</option>
+                <option>Maresciallo</option>
+                <option>Maresciallo Ordinario</option>
+                <option>Maresciallo Capo</option>
+                <option>Luogotenente</option>
+                <option>Sottotenente</option>
+                <option>Tenente</option>
+                <option>Capitano</option>
+                <option>Maggiore</option>
+                <option>Tenente Colonnello</option>
+                <option>Colonnello</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>REPARTO</label>
+              <select id="memberReparto" required>
+                <option value="">Seleziona reparto</option>
+                <option>Pattuglia Territoriale</option>
+                <option>Nucleo Investigativo</option>
+                <option>Nucleo Radiomobile</option>
+                <option>Comando Stazione</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>STATO</label>
+              <select id="memberStatus" required>
+                <option value="Attivo">Attivo</option>
+                <option value="In Addestramento">In Addestramento</option>
+                <option value="Sospeso">Sospeso</option>
+                <option value="Congedo">Congedo</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>NOTE (opzionale)</label>
+              <input type="text" id="memberNote" placeholder="Note aggiuntive" />
+            </div>
+          </div>
+          <p class="form-success hidden" id="addSuccess">✅ Membro aggiunto con successo!</p>
+          <p class="form-error hidden" id="addError"></p>
+          <button type="submit" class="btn-submit">AGGIUNGI MEMBRO</button>
+        </form>
+      </div>
+
+      <!-- TAB: Gestione Admin -->
+      <div class="tab-content hidden" id="tab-admin">
+        <div class="panel-header">
+          <h2>Gestione Admin</h2>
+          <p>Aggiungi o rimuovi account admin del pannello</p>
+        </div>
+        <form class="admin-form" id="addAdminForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>USERNAME ADMIN</label>
+              <input type="text" id="newAdminUsername" placeholder="Es. comandante" required />
+            </div>
+            <div class="form-group">
+              <label>PASSWORD</label>
+              <input type="password" id="newAdminPassword" placeholder="••••••••" required />
+            </div>
+          </div>
+          <p class="form-success hidden" id="adminSuccess">✅ Admin aggiunto!</p>
+          <p class="form-error hidden" id="adminError"></p>
+          <button type="submit" class="btn-submit">AGGIUNGI ADMIN</button>
+        </form>
+
+        <div class="table-wrap" style="margin-top:2rem;">
+          <table class="staff-table">
+            <thead>
+              <tr><th>Username</th><th>Azioni</th></tr>
+            </thead>
+            <tbody id="adminTableBody">
+              <tr><td colspan="2" class="table-empty">Caricamento...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
